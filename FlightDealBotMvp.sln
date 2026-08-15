@@ -1,0 +1,18 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FCC11AE8-BD74-44CF-AFBE-0DA1087C8321}") = "FlightDealBotMvp", "FlightDealBotMvp.csproj", "{A9BD9E8B-A69E-4307-B970-41D997E5BEE4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A9BD9E8B-A69E-4307-B970-41D997E5BEE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9BD9E8B-A69E-4307-B970-41D997E5BEE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9BD9E8B-A69E-4307-B970-41D997E5BEE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9BD9E8B-A69E-4307-B970-41D997E5BEE4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
