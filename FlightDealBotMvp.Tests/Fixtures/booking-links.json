@@ -1,0 +1,21 @@
+{
+  "booking_options": [
+    {
+      "legs": ["WAW-BCN"],
+      "links": [
+        {
+          "provider_name": "LOT",
+          "provider_type": "airline",
+          "price": { "amount": 151.20, "currency": "USD", "status": "live" },
+          "url": "https://example.test/lot/book"
+        },
+        {
+          "provider_name": "Example OTA",
+          "provider_type": "ota",
+          "price": { "amount": 149.90, "currency": "USD", "status": "live" },
+          "url": "https://example.test/ota/book"
+        }
+      ]
+    }
+  ]
+}

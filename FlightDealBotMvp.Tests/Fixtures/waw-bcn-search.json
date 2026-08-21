@@ -1,0 +1,32 @@
+{
+  "itineraries": [
+    {
+      "ignav_id": "ignav-waw-bcn-001",
+      "price": { "amount": 149.90, "currency": "USD", "status": "live" },
+      "cabin_class": "economy",
+      "requires_self_transfer": false,
+      "legs": [
+        {
+          "carrier": "LOT Polish Airlines",
+          "duration_minutes": 185,
+          "segments": [
+            {
+              "marketing_carrier_code": "LO",
+              "flight_number": "437",
+              "operating_carrier_name": "LOT Polish Airlines",
+              "departure_airport": "WAW",
+              "departure_time_local": "2026-09-20T09:10:00",
+              "departure_timezone": "Europe/Warsaw",
+              "departure_time_utc": "2026-09-20T07:10:00Z",
+              "arrival_airport": "BCN",
+              "arrival_time_local": "2026-09-20T12:15:00",
+              "arrival_timezone": "Europe/Madrid",              "arrival_time_utc": "2026-09-20T10:15:00Z",
+              "duration_minutes": 185,
+              "aircraft": "Boeing 737 MAX 8"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

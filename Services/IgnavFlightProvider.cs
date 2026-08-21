@@ -76,32 +76,42 @@ public sealed class IgnavFlightProvider : IFlightProvider
     {
         for (var attempt = 0; ; attempt++)
         {
+            HttpResponseMessage response;
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Post, _options.IgnavBaseUrl.TrimEnd('/') + endpoint);
                 request.Headers.Add("X-Api-Key", _options.IgnavApiKey);
                 request.Content = JsonContent.Create(payload, options: _json);
-                var response = await _http.SendAsync(request, cancellationToken);
-                if (response.IsSuccessStatusCode) return response;
-                var transient = response.StatusCode is HttpStatusCode.RequestTimeout or HttpStatusCode.TooManyRequests || (int)response.StatusCode >= 500;
-                if (!transient || attempt >= _options.IgnavMaxRetries)
-                {
-                    var body = await response.Content.ReadAsStringAsync(cancellationToken);
-                    response.Dispose();
-                    throw new HttpRequestException($"Ignav {endpoint} failed ({(int)response.StatusCode}): {Shorten(body, 600)}");
-                }
-                var retryAfter = response.Headers.RetryAfter?.Delta;
-                response.Dispose();
-                await DelayAsync(attempt, retryAfter, cancellationToken);
+                response = await _http.SendAsync(request, cancellationToken);
             }
             catch (HttpRequestException) when (attempt < _options.IgnavMaxRetries)
             {
                 await DelayAsync(attempt, null, cancellationToken);
+                continue;
             }
             catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested && attempt < _options.IgnavMaxRetries)
             {
                 await DelayAsync(attempt, null, cancellationToken);
+                continue;
             }
+
+            if (response.IsSuccessStatusCode)
+                return response;
+
+            var isTransient = response.StatusCode is HttpStatusCode.RequestTimeout or HttpStatusCode.TooManyRequests ||
+                              (int)response.StatusCode >= 500;
+            if (isTransient && attempt < _options.IgnavMaxRetries)
+            {
+                var retryAfter = response.Headers.RetryAfter?.Delta;
+                response.Dispose();
+                await DelayAsync(attempt, retryAfter, cancellationToken);
+                continue;
+            }
+
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            var statusCode = (int)response.StatusCode;
+            response.Dispose();
+            throw new HttpRequestException($"Ignav {endpoint} failed ({statusCode}): {Shorten(body, 600)}");
         }
     }
 
