@@ -1,0 +1,2 @@
+namespace FlightDealBotMvp.Models;
+public sealed record FlightSegment(string MarketingCarrierCode, string FlightNumber, string OperatingCarrierName, string DepartureAirport, DateTime DepartureTimeLocal, string DepartureTimezone, DateTimeOffset DepartureTimeUtc, string ArrivalAirport, DateTime ArrivalTimeLocal, string ArrivalTimezone, DateTimeOffset ArrivalTimeUtc, int DurationMinutes, string? Aircraft);

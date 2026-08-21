@@ -1,91 +1,55 @@
 # FlightDealBotMvp
 
-Первый рабочий vertical slice Telegram-бота для мониторинга цен на авиабилеты.
+Telegram MVP for monitoring airfare and sending actionable deal alerts.
 
-## Что уже умеет
+## Current vertical slice
 
-- запускаться локально на Windows/Linux;
-- получать Telegram-сообщения через long polling, без домена и HTTPS;
-- создавать алерт на конкретный маршрут и даты;
-- хранить алерты в `data/alerts.json`;
-- получать Flight Offers из Amadeus Self-Service API;
-- группировать одинаковые поиски, чтобы не дергать Amadeus по одному разу на каждого пользователя;
-- присылать Telegram-уведомление при цене ниже заданного порога;
-- защищаться от спама повторными одинаковыми алертами.
+- Telegram `/alert`, `/list`, `/check`, `/delete` commands.
+- Ignav is isolated behind `IFlightProvider`.
+- One-way, round-trip and two-leg/open-jaw provider requests.
+- Search results are normalized into provider-independent domain models.
+- Booking links are resolved only when needed.
+- Telegram can show direct airline and OTA purchase buttons.
+- JSON alert persistence remains the MVP storage.
+- Retry/backoff handles HTTP 408, 429, 5xx and transient transport failures.
 
-## Требования
-
-- .NET 8 SDK
-- Telegram Bot Token от @BotFather
-- Amadeus API Key + Secret
-
-## Настройка
-
-1. Скопируй конфиг:
+## Configuration
 
 ```powershell
 Copy-Item appsettings.example.json appsettings.json
 ```
 
-2. Заполни `appsettings.json`:
+Fill `TelegramBotToken` and `IgnavApiKey`. The Ignav key is server-side only and is sent in the `X-Api-Key` header. `appsettings.json` is ignored by Git.
 
-```json
-{
-  "TelegramBotToken": "...",
-  "AmadeusClientId": "...",
-  "AmadeusClientSecret": "...",
-  "AmadeusBaseUrl": "https://test.api.amadeus.com",
-  "PriceCheckIntervalMinutes": 15,
-  "AlertNotificationCooldownMinutes": 720,
-  "MinimumPriceDropForRepeatAlert": 20
-}
-```
-
-3. Запусти:
+## Run
 
 ```powershell
 dotnet restore
+dotnet build FlightDealBotMvp.sln -c Release
+dotnet test FlightDealBotMvp.sln -c Release --no-build
 dotnet run
 ```
 
-4. Открой своего бота и напиши:
+## Telegram example
 
 ```text
-/start
-```
-
-5. Создай тестовый алерт:
-
-```text
-/alert JFK CDG 2026-10-17 2026-10-24 500
-```
-
-6. Проверь сразу:
-
-```text
+/alert WAW BCN 2026-09-20 2026-09-27 250
 /check 1
 ```
 
-## Команды
+The `/check` flow is: alert -> Ignav search -> cheapest USD offer -> booking refresh -> Telegram result -> direct airline/OTA buttons when available. Booking prices can change; the seller page remains the final price source before purchase.
 
-```text
-/start
-/help
-/alert FROM TO DEPART RETURN MAX_USD
-/list
-/check ID
-/delete ID
-```
+## Architecture
 
-## Почему пока JSON, а не PostgreSQL
+`BotCommandHandler` and `PriceMonitor` depend on `IFlightProvider`, not on Ignav DTOs. This keeps a second or third provider possible without coupling Telegram/business logic to Ignav's response format.
 
-На первом этапе нам нужно проверить самую рискованную часть продукта: реально ли стабильно получать полезные цены и нравятся ли пользователям алерты. После этого JSON заменяется репозиторием PostgreSQL без изменения Telegram/Amadeus слоя.
+The monitor keeps grouping identical searches, so one provider search serves all matching alerts. Booking resolution happens only when an offer can trigger a notification.
 
-## Следующий этап
+## Roadmap
 
-1. Города вместо IATA: `New York` => JFK/EWR/LGA.
-2. `Anywhere in Europe` с набором европейских аэропортов.
-3. Flexible dates + trip duration.
-4. История цен и DealScore.
-5. PostgreSQL + Redis.
-6. Telegram Stars после проверки продуктовой гипотезы.
+- richer airport/city discovery;
+- flexible-date deal discovery;
+- PostgreSQL persistence;
+- Redis caching/rate limiting;
+- price history and DealScore;
+- additional flight providers and fallback routing.
